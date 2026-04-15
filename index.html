@@ -54,14 +54,17 @@
 </div>
 
 <script>
+    // =========================================================================
     const scriptURL = 'https://script.google.com/macros/s/AKfycbw2bUUv6qiqHHOoasGMemXdA-2WR8xjYj-GGShM_FKMUxbCc090aBdVyOwjeILN71P1/exec';
+    // =========================================================================
+
     const form = document.getElementById('dataForm');
     const submitBtn = document.getElementById('submitBtn');
     const messageDiv = document.getElementById('message');
 
     form.addEventListener('submit', e => {
-        e.preventDefault(); 
-        
+        e.preventDefault();
+
         submitBtn.disabled = true;
         submitBtn.innerText = "Wird gesendet...";
 
@@ -69,8 +72,8 @@
         const formData = new FormData(form);
 
         // Der entscheidende Trick: mode: 'no-cors'
-        fetch(scriptURL, { 
-            method: 'POST', 
+        fetch(scriptURL, {
+            method: 'POST',
             body: formData,
             mode: 'no-cors' // <-- Das verhindert, dass der Browser die Anfrage blockiert!
         })
@@ -79,7 +82,7 @@
             // Wenn der Code aber hier ankommt, wurde das Formular erfolgreich über das Netzwerk verschickt!
             messageDiv.style.color = "green";
             messageDiv.innerText = "Daten erfolgreich gesendet!";
-            form.reset(); 
+            form.reset();
             submitBtn.disabled = false;
             submitBtn.innerText = "Absenden";
         })
@@ -92,8 +95,6 @@
         });
     });
 </script>
-
-
 
 </body>
 </html>
