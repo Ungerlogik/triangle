@@ -55,53 +55,45 @@
 
 <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbw2bUUv6qiqHHOoasGMemXdA-2WR8xjYj-GGShM_FKMUxbCc090aBdVyOwjeILN71P1/exec';
-    // =========================================================================
-
     const form = document.getElementById('dataForm');
     const submitBtn = document.getElementById('submitBtn');
     const messageDiv = document.getElementById('message');
 
     form.addEventListener('submit', e => {
-        e.preventDefault();
-
+        e.preventDefault(); 
+        
         submitBtn.disabled = true;
         submitBtn.innerText = "Wird gesendet...";
 
-        // NEU: Die Daten in ein Format umwandeln, das Google Apps Script zu 100% versteht
+        // Daten normal aus dem Formular ziehen
         const formData = new FormData(form);
-        const data = new URLSearchParams(formData);
 
-        // Die Daten senden
-        fetch(scriptURL, {
-            method: 'POST',
-            body: data,
-            headers: {
-                // Sagt Google, dass wir simplen Text schicken, keinen komplexen Datei-Upload
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
+        // Der entscheidende Trick: mode: 'no-cors'
+        fetch(scriptURL, { 
+            method: 'POST', 
+            body: formData,
+            mode: 'no-cors' // <-- Das verhindert, dass der Browser die Anfrage blockiert!
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Netzwerkfehler oder 400 Bad Request");
-            }
-            return response.text();
-        })
-        .then(text => {
+        .then(() => {
+            // Bei 'no-cors' gibt Google keine lesbare Antwort zurück.
+            // Wenn der Code aber hier ankommt, wurde das Formular erfolgreich über das Netzwerk verschickt!
             messageDiv.style.color = "green";
-            messageDiv.innerText = "Daten erfolgreich im Sheet gespeichert!";
-            form.reset();
+            messageDiv.innerText = "Daten erfolgreich gesendet!";
+            form.reset(); 
             submitBtn.disabled = false;
             submitBtn.innerText = "Absenden";
         })
         .catch(error => {
-            console.error('Fehler!', error.message);
+            console.error('Fehler!', error);
             messageDiv.style.color = "red";
-            messageDiv.innerText = "Es gab einen Fehler. Bitte nochmal versuchen.";
+            messageDiv.innerText = "Fehler bei der Verbindung. Bitte nochmal versuchen.";
             submitBtn.disabled = false;
             submitBtn.innerText = "Absenden";
         });
     });
 </script>
+
+
 
 </body>
 </html>
