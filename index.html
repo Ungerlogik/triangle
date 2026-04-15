@@ -54,8 +54,6 @@
 </div>
 
 <script>
-    // =========================================================================
-    // HIER DEINE KOPIERTE WEB-APP-URL EINTRAGEN:
     const scriptURL = 'https://script.google.com/macros/s/AKfycbw2bUUv6qiqHHOoasGMemXdA-2WR8xjYj-GGShM_FKMUxbCc090aBdVyOwjeILN71P1/exec';
     // =========================================================================
 
@@ -64,28 +62,44 @@
     const messageDiv = document.getElementById('message');
 
     form.addEventListener('submit', e => {
-        e.preventDefault(); // Verhindert, dass die Seite neu lädt
+        e.preventDefault();
 
-        // Button deaktivieren, damit nicht doppelt geklickt wird
         submitBtn.disabled = true;
         submitBtn.innerText = "Wird gesendet...";
 
-        // Daten an Google senden
-        fetch(scriptURL, { method: 'POST', body: new FormData(form) })
-            .then(response => {
-                messageDiv.style.color = "green";
-                messageDiv.innerText = "Daten erfolgreich gesendet!";
-                form.reset(); // Formular leeren
-                submitBtn.disabled = false;
-                submitBtn.innerText = "Absenden";
-            })
-            .catch(error => {
-                console.error('Fehler!', error.message);
-                messageDiv.style.color = "red";
-                messageDiv.innerText = "Es gab einen Fehler. Bitte nochmal versuchen.";
-                submitBtn.disabled = false;
-                submitBtn.innerText = "Absenden";
-            });
+        // NEU: Die Daten in ein Format umwandeln, das Google Apps Script zu 100% versteht
+        const formData = new FormData(form);
+        const data = new URLSearchParams(formData);
+
+        // Die Daten senden
+        fetch(scriptURL, {
+            method: 'POST',
+            body: data,
+            headers: {
+                // Sagt Google, dass wir simplen Text schicken, keinen komplexen Datei-Upload
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Netzwerkfehler oder 400 Bad Request");
+            }
+            return response.text();
+        })
+        .then(text => {
+            messageDiv.style.color = "green";
+            messageDiv.innerText = "Daten erfolgreich im Sheet gespeichert!";
+            form.reset();
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Absenden";
+        })
+        .catch(error => {
+            console.error('Fehler!', error.message);
+            messageDiv.style.color = "red";
+            messageDiv.innerText = "Es gab einen Fehler. Bitte nochmal versuchen.";
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Absenden";
+        });
     });
 </script>
 
