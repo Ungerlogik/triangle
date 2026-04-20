@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Werte eintragen</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px; }
+        .container { max-width: 400px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin: 0 auto; }
+        h2 { text-align: center; color: #333; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { margin-top: 20px; width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+        button:hover { background-color: #218838; }
+        #message { margin-top: 15px; text-align: center; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Werte eintragen</h2>
+
+    <form id="dataForm">
+        <label>Name:</label>
+        <input type="text" name="name" required>
+
+        <label>a:</label>
+        <input type="number" step="any" name="a" required>
+
+        <label>b:</label>
+        <input type="number" step="any" name="b" required>
+
+        <label>c:</label>
+        <input type="number" step="any" name="c" required>
+
+        <label>a/c:</label>
+        <input type="number" step="any" name="a_c" required>
+
+        <label>b/c:</label>
+        <input type="number" step="any" name="b_c" required>
+
+        <label>a/b:</label>
+        <input type="number" step="any" name="a_b" required>
+
+        <label>b/a:</label>
+        <input type="number" step="any" name="b_a" required>
+
+        <label>Winkel α (°):</label>
+        <input type="number" step="any" name="alpha">
+
+        <button type="submit" id="submitBtn">Absenden</button>
+    </form>
+
+    <div id="message"></div>
+</div>
+
+<script>
+    const form = document.getElementById('dataForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const messageDiv = document.getElementById('message');
+
+    // HIER DEINE GOOGLE SCRIPT URL:
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyY9WuEWiBnc4EQefCU3v56a21kiej5DSPq9Uf9jX-ZnFozG8waJRXffsfYxQ1AVBvh/exec';
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault(); // Verhindert, dass die Seite neu lädt
+
+        // Button sperren, Nachricht zurücksetzen
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Wird gesendet...";
+        messageDiv.innerText = "";
+
+        // Alle Daten aus dem Formular in ein Objekt packen
+        const formData = new FormData(form);
+        const payload = {
+            name: formData.get('name'),
+            a: formData.get('a'),
+            b: formData.get('b'),
+            c: formData.get('c'),
+            a_c: formData.get('a_c'),
+            b_c: formData.get('b_c'),
+            a_b: formData.get('a_b'),
+            b_a: formData.get('b_a'),
+            alpha: formData.get('alpha')
+        };
+
+        // Daten absenden (ohne Headers, um den CORS-Preflight zu umgehen)
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(payload)
+        })
+        .then(() => {
+            messageDiv.style.color = "green";
+            messageDiv.innerText = "Daten erfolgreich gesendet!";
+            form.reset();
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Absenden";
+        })
+        .catch(err => {
+            console.error("Sende-Fehler:", err);
+            messageDiv.style.color = "red";
+            messageDiv.innerText = "Fehler beim Senden. Bitte Internetverbindung prüfen.";
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Absenden";
+        });
+    });
+</script>
+
+</body>
+</html>
